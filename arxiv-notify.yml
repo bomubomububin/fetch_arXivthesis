@@ -1,0 +1,31 @@
+name: ArXiv Paper Notification
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # UTC 0:00 = 日本時間 9:00 に実行
+  workflow_dispatch:  # 手動実行ボタンも残しとくで
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          # GitHub SecretsからAPIキーとSlack URLを読み込んでPythonに渡すで！
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # もしmain.pyがルート直下にあるなら、こうや！
+        run: python main.py
